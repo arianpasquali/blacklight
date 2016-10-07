@@ -213,12 +213,18 @@ RSpec.describe CatalogHelper do
   end
 
   describe "render_thumbnail_tag" do
+    let(:presenter) { instance_double(Blacklight::IndexPresenter) }
+    before do
+      assign(:presenter, instance_double(Blacklight::ResultsPagePresenter, presenter_class: Blacklight::IndexPresenter))
+      allow(Blacklight::IndexPresenter).to receive(:new).and_return(presenter)
+    end
     let(:document) { instance_double(SolrDocument) }
+
     it "calls the provided thumbnail method" do
       allow(helper).to receive_messages(:blacklight_config => Blacklight::Configuration.new(:index => Blacklight::OpenStructWithHashAccess.new(:thumbnail_method => :xyz) ))
       expect(helper).to receive_messages(:xyz => "some-thumbnail")
 
-      allow(helper).to receive(:link_to_document).with(document, "some-thumbnail", {})
+      allow(presenter).to receive(:link_to_document).with("some-thumbnail", {})
       helper.render_thumbnail_tag document
     end
 
@@ -228,7 +234,7 @@ RSpec.describe CatalogHelper do
       allow(document).to receive(:has?).with(:xyz).and_return(true)
       allow(document).to receive(:first).with(:xyz).and_return("http://example.com/some.jpg")
 
-      expect(helper).to receive(:link_to_document).with(document, image_tag("http://example.com/some.jpg"), {})
+      expect(presenter).to receive(:link_to_document).with(image_tag("http://example.com/some.jpg"), {})
       helper.render_thumbnail_tag document
     end
 

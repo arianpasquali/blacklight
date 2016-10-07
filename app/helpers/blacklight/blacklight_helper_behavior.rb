@@ -232,15 +232,6 @@ module Blacklight::BlacklightHelperBehavior
     response.grouped?
   end
 
-  # TODO: move this into the ResultsPagePresenter
-  def index_presenter(document)
-    index_presenter_class(document).new(document, self)
-  end
-
-  def index_presenter_class(_document)
-    blacklight_config.index.document_presenter_class
-  end
-
   ##
   # Open Search discovery tag for HTML <head> links
   def opensearch_description_tag title, href

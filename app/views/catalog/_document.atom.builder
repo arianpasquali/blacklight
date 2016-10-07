@@ -1,5 +1,6 @@
+index_presenter = blacklight_config.index.document_presenter_class.new(document, self)
 xml.entry do
-  xml.title index_presenter(document).label(document_show_link_field(document))
+  xml.title index_presenter.label
   
   # updated is required, for now we'll just set it to now, sorry
   xml.updated Time.current.iso8601
@@ -20,8 +21,9 @@ xml.entry do
   with_format("html") do
     xml.summary "type" => "html" do
       xml.text! render_document_partial(document,
-      :index,
-      :document_counter => document_counter)
+                                        :index,
+                                        document_counter: document_counter,
+                                        presenter: index_presenter)
     end
   end
   

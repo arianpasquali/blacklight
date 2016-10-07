@@ -200,6 +200,7 @@ module Blacklight::CatalogHelperBehavior
   # @param [Hash] image_options to pass to the image tag
   # @param [Hash] url_options to pass to #link_to_document
   # @return [String]
+  # TODO: Move this to the IndexPresenter (or a ThumbnailPresenter)
   def render_thumbnail_tag document, image_options = {}, url_options = {}
     value = if blacklight_config.view_config(document_index_view_type).thumbnail_method
               method_name = blacklight_config.view_config(document_index_view_type).thumbnail_method
@@ -210,13 +211,9 @@ module Blacklight::CatalogHelperBehavior
               image_tag url, image_options if url.present?
             end
 
-    if value
-      if url_options == false || url_options[:suppress_link]
-        value
-      else
-        link_to_document document, value, url_options
-      end
-    end
+    return unless value
+    return value if url_options == false || url_options[:suppress_link]
+    @presenter.presenter_class.new(document, self).link_to_document(value, url_options)
   end
 
   ##

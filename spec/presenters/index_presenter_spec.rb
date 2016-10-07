@@ -2,11 +2,20 @@
 
 RSpec.describe Blacklight::IndexPresenter do
   include Capybara::RSpecMatchers
-  let(:request_context) { double }
+  let(:document_url) { double("document-url") }
+  let(:session_params) { { data: { :'tracker-href' => '/track/123' } } }
+
+  let(:view_context) do
+    double(search_state: search_state,
+           document_index_view_type: :a,
+           url_for_document: document_url,
+           session_tracking_params: session_params,
+          )
+  end
   let(:config) { Blacklight::Configuration.new }
 
   subject { presenter }
-  let(:presenter) { described_class.new(document, request_context, config) }
+  let(:presenter) { described_class.new(document, view_context, config) }
   let(:parameter_class) { ActionController::Parameters }
   let(:params) { parameter_class.new }
   let(:search_state) { Blacklight::SearchState.new(params, config) }
@@ -17,10 +26,6 @@ RSpec.describe Blacklight::IndexPresenter do
                      'link_to_facet_named' => 'x',
                      'qwer' => 'document qwer value',
                      'mnbv' => 'document mnbv value')
-  end
-
-  before do
-    allow(request_context).to receive(:search_state).and_return(search_state)
   end
 
   describe "field_value" do
@@ -44,21 +49,21 @@ RSpec.describe Blacklight::IndexPresenter do
     end
 
     it "checks for a helper method to call" do
-      allow(request_context).to receive(:render_asdf_index_field).and_return('custom asdf value')
+      allow(view_context).to receive(:render_asdf_index_field).and_return('custom asdf value')
       value = subject.field_value 'asdf'
       expect(value).to eq 'custom asdf value'
     end
 
     it "checks for a link_to_facet" do
-      allow(request_context).to receive(:search_action_path).with('f' => { 'link_to_facet_true' => ['x'] }).and_return('/foo')
-      allow(request_context).to receive(:link_to).with("x", '/foo').and_return('bar')
+      allow(view_context).to receive(:search_action_path).with('f' => { 'link_to_facet_true' => ['x'] }).and_return('/foo')
+      allow(view_context).to receive(:link_to).with("x", '/foo').and_return('bar')
       value = subject.field_value 'link_to_facet_true'
       expect(value).to eq 'bar'
     end
 
     it "checks for a link_to_facet with a field name" do
-      allow(request_context).to receive(:search_action_path).with('f' => { 'some_field' => ['x'] }).and_return('/foo')
-      allow(request_context).to receive(:link_to).with("x", '/foo').and_return('bar')
+      allow(view_context).to receive(:search_action_path).with('f' => { 'some_field' => ['x'] }).and_return('/foo')
+      allow(view_context).to receive(:link_to).with("x", '/foo').and_return('bar')
       value = subject.field_value 'link_to_facet_named'
       expect(value).to eq 'bar'
     end
@@ -124,7 +129,7 @@ RSpec.describe Blacklight::IndexPresenter do
       end
 
       it "checks call the helper method with arguments" do
-        allow(request_context).to receive(:render_field_with_helper) do |*args|
+        allow(view_context).to receive(:render_field_with_helper) do |*args|
           args.first
         end
 
@@ -141,5 +146,92 @@ RSpec.describe Blacklight::IndexPresenter do
       end
     end
   end
-end
 
+  describe "#link_to_document" do
+    let(:title_display) { '654321' }
+    let(:id) { '123456' }
+    let(:data) { { 'id' => id, 'title_display' => [title_display] } }
+    let(:document) { SolrDocument.new(data) }
+
+    before do
+      allow(view_context).to receive(:action_name).and_return('index')
+    end
+
+    it "consists of the document title wrapped in a <a>" do
+      expect(view_context).to receive(:link_to).with('654321', document_url, session_params)
+      presenter.link_to_document(:title_display)
+    end
+
+    it "accepts and returns a string label" do
+      expect(view_context).to receive(:link_to).with('title_display', document_url, session_params)
+      presenter.link_to_document(String.new('title_display'))
+    end
+
+    it "accepts and returns a Proc" do
+      expect(view_context).to receive(:link_to).with('123456: 654321', document_url, session_params)
+      presenter.link_to_document(Proc.new { |doc, opts| doc[:id] + ": " + doc.first(:title_display) })
+    end
+
+    context 'when label is missing' do
+      let(:data) { { 'id' => id } }
+      it "returns id" do
+        expect(view_context).to receive(:link_to).with('123456', document_url, session_params)
+        presenter.link_to_document
+      end
+
+      it "passes on the title attribute to the link_to_with_data method" do
+        expect(view_context).to receive(:link_to).with('Some crazy long label...',
+                                                       document_url,
+                                                       data: {:"tracker-href"=>"/track/123"},
+                                                       title: "Some crazy longer label")
+        presenter.link_to_document("Some crazy long label...", title: "Some crazy longer label")
+      end
+
+      it "doesn't add an erroneous title attribute if one isn't provided" do
+        expect(view_context).to receive(:link_to).with('Some crazy long label...',
+                                                       document_url,
+                                                       data: {:"tracker-href"=>"/track/123"})
+        presenter.link_to_document("Some crazy long label...")
+      end
+
+      context "with an integer id" do
+        let(:id) { 123456 }
+        it "works" do
+          expect(view_context).to receive(:link_to).with('123456', document_url, session_params)
+          presenter.link_to_document
+        end
+      end
+    end
+
+    it "converts the counter parameter into a data- attribute" do
+      allow(view_context).to receive(:session_tracking_params).with(document, 5).and_return(data: { context: "new-track" })
+      expect(view_context).to receive(:link_to).with('654321', document_url, data: { context: "new-track" })
+      presenter.link_to_document(:title_display, counter: 5)
+    end
+
+    it "includes the data- attributes from the options" do
+      expect(view_context).to receive(:link_to).with('123456', document_url, data: { "tracker-href": "/track/123", x: 1 })
+      presenter.link_to_document(data: { x: 1 })
+    end
+  end
+
+  describe "#show_link_field" do
+    let(:document) { SolrDocument.new id: 123, a: 1, b: 2, c: 3 }
+    subject { presenter.show_link_field }
+
+    it "allows single values" do
+      config.index.title_field = :a
+      expect(subject).to eq :a
+    end
+    
+    it "retrieves the first field with data" do
+      config.index.title_field = [:zzz, :b]
+      expect(subject).to eq :b
+    end
+
+    it "falls back on the id" do
+      config.index.title_field = [:zzz, :yyy]
+      expect(subject).to eq 123
+    end
+  end
+end
