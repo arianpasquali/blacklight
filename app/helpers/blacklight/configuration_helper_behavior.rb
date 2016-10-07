@@ -63,6 +63,7 @@ module Blacklight::ConfigurationHelperBehavior
 
     field_config.display_label('index')
   end
+  deprecation_deprecate index_field_label: "use index_field_label on the field itself"
 
   ##
   # Look up the label for the show field
@@ -72,6 +73,7 @@ module Blacklight::ConfigurationHelperBehavior
 
     field_config.display_label('show')
   end
+  deprecation_deprecate document_show_field_label: "use show_field_label on the field itself"
 
   ##
   # Look up the label for the facet field
@@ -81,6 +83,7 @@ module Blacklight::ConfigurationHelperBehavior
 
     field_config.display_label('facet')
   end
+  deprecation_deprecate facet_field_label: "use facet_field_label on the field itself"
 
   def view_label view
     view_config = blacklight_config.view[view]
@@ -93,6 +96,7 @@ module Blacklight::ConfigurationHelperBehavior
     )
   end
 
+  # TODO: Deprecate?
   # Shortcut for commonly needed operation, look up display
   # label for the key specified. Returns "Keyword" if a label
   # can't be found.
@@ -103,6 +107,7 @@ module Blacklight::ConfigurationHelperBehavior
     field_config.display_label('search')
   end
 
+  # TODO: Deprecate?
   def sort_field_label(key)
     field_config = blacklight_config.sort_fields[key]
     field_config ||= Blacklight::Configuration::NullField.new(key: field)
@@ -127,6 +132,7 @@ module Blacklight::ConfigurationHelperBehavior
 
     t(first, default: rest)
   end
+  deprecation_deprecate field_label: "use field_label on the field itself"
 
   def document_index_views
     blacklight_config.view.select do |_k, config|
