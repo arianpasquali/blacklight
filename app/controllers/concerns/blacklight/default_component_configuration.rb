@@ -47,6 +47,9 @@ module Blacklight
         # Define a simple action handler for the tool
         define_method name do
           @response, @documents = action_documents
+          @presenters = @documents.map do |doc|
+            blacklight_config.show.document_presenter_class.new(doc, view_context)
+          end if @documents
 
           if request.post? && opts[:callback] &&
             (opts[:validator].blank? || send(opts[:validator]))

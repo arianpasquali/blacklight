@@ -53,7 +53,10 @@ module Blacklight::Catalog
     @response = ActiveSupport::Deprecation::DeprecatedObjectProxy.new(deprecated_response, 'The @response instance variable is deprecated; use @document.response instead.')
 
     respond_to do |format|
-      format.html { setup_next_and_previous_documents }
+      format.html do
+        @presenter = show_presenter_class(@document).new(@document, view_context)
+        setup_next_and_previous_documents
+      end
       format.json { render json: { response: { document: @document } } }
       additional_export_formats(@document, format)
     end
@@ -148,11 +151,18 @@ module Blacklight::Catalog
     end
   end
 
-    protected
+  protected
 
   #
   # non-routable methods ->
   #
+  #
+
+  ##
+  # Override this method if you want to use a different presenter class
+  def show_presenter_class(_document)
+    blacklight_config.show.document_presenter_class
+  end
 
   def search_service
     search_service_class.new(blacklight_config, search_state.to_h)

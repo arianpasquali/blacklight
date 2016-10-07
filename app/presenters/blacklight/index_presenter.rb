@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 module Blacklight
+  # Presents a single document on the results page
   class IndexPresenter
     attr_reader :document, :configuration, :view_context
 
