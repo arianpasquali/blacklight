@@ -65,6 +65,7 @@ module Blacklight
     def fields
       configuration.index_fields.values.select { |field| render_field?(field) }
     end
+
     ##
     # Render the index field label for a document
     #
