@@ -8,6 +8,7 @@ module Blacklight::ConfigurationHelperBehavior
   def index_fields _document = nil
     blacklight_config.index_fields
   end
+  deprecation_deprecate :index_fields
 
   # Used in the document_list partial (search view) for building a select element
   def sort_fields
@@ -36,6 +37,7 @@ module Blacklight::ConfigurationHelperBehavior
   def document_show_fields _document = nil
     blacklight_config.show_fields
   end
+  deprecation_deprecate :document_show_fields
 
   ##
   # Return a label for the currently selected search field.
