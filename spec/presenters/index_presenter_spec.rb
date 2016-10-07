@@ -147,6 +147,27 @@ RSpec.describe Blacklight::IndexPresenter do
     end
   end
 
+  describe "#render_field?" do
+    before do
+      allow(view_context).to receive_messages(should_render_field?: true, document_has_value?: true)
+    end
+
+    it "is true" do
+      expect(presenter.render_field?(double)).to be true
+    end
+
+    it "is false if the document doesn't have a value for the field" do
+      allow(view_context).to receive_messages(document_has_value?: false)
+      expect(presenter.render_field?(double)).to be false
+    end
+
+    it "is false if the configuration has the field disabled" do
+      allow(view_context).to receive_messages(should_render_field?: false)
+      expect(presenter.render_field?(double)).to be false
+    end
+  end
+
+
   describe "#link_to_document" do
     let(:title_display) { '654321' }
     let(:id) { '123456' }
