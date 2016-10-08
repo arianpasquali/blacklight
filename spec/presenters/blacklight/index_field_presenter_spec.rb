@@ -135,7 +135,6 @@ RSpec.describe Blacklight::IndexFieldPresenter do
     end
 
     context 'for a field with the helper_method option' do
-      let(:field_name) { 'field_with_helper' }
       let(:config) do
         Blacklight::Configuration.new
       end
@@ -149,9 +148,7 @@ RSpec.describe Blacklight::IndexFieldPresenter do
           args.first
         end
 
-        render_options = { a: 1 }
-
-        options = instance.send(:value, a: 1)
+        options = instance.value(a: 1)
 
         expect(options).to include :document, :field, :value, :config, :a
         expect(options[:document]).to eq document
