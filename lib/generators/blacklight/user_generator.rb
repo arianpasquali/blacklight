@@ -19,8 +19,14 @@ module Blacklight
     def generate_devise_assets
       return unless options[:devise]
 
-      gem "devise"
-      gem "devise-guests", "~> 0.5"
+      if Rails.version < '5.1'
+        gem "devise"
+      else
+        # This is temporary until a new version of devise is released
+        gem "devise", github: 'plataformatec/devise'
+      end
+
+      gem "devise-guests", "~> 0.6"
 
       Bundler.with_clean_env do
         run "bundle install"

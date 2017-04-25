@@ -4,6 +4,7 @@
 //   which over-rides things in this JS file, as described below.
 //
 // These javascript files are compiled in via the Rails asset pipeline:
+//= require jquery
 //= require blacklight/core
 //= require blacklight/autofocus
 //= require blacklight/bookmark_toggle
