@@ -199,7 +199,7 @@ RSpec.describe CatalogHelper do
       allow(document).to receive_messages(has?: true)
       expect(helper.has_thumbnail? document).to be true
     end
-    
+
     it "does not have a thumbnail if the thumbnail_field is missing from the document" do
       allow(helper).to receive_messages(:blacklight_config => Blacklight::Configuration.new(:index => Blacklight::OpenStructWithHashAccess.new(:thumbnail_field => :xyz) ))
       allow(document).to receive_messages(has?: false)
@@ -214,9 +214,11 @@ RSpec.describe CatalogHelper do
 
   describe "render_thumbnail_tag" do
     let(:presenter) { instance_double(Blacklight::IndexPresenter) }
+    let(:list_presenter) { instance_double(Blacklight::ResultsPagePresenter) }
+
     before do
-      assign(:presenter, instance_double(Blacklight::ResultsPagePresenter, presenter_class: Blacklight::IndexPresenter))
-      allow(Blacklight::IndexPresenter).to receive(:new).and_return(presenter)
+      assign(:presenter, list_presenter)
+      allow(list_presenter).to receive(:item_presenter_for).and_return(presenter)
     end
     let(:document) { instance_double(SolrDocument) }
 
