@@ -217,7 +217,7 @@ RSpec.describe CatalogHelper do
     let(:list_presenter) { instance_double(Blacklight::ResultsPagePresenter) }
 
     before do
-      assign(:presenter, list_presenter)
+      assign(:list_presenter, list_presenter)
       allow(list_presenter).to receive(:item_presenter_for).and_return(presenter)
     end
     let(:document) { instance_double(SolrDocument) }

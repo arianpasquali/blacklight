@@ -211,7 +211,7 @@ module Blacklight::CatalogHelperBehavior
 
     return unless value
     return value if url_options == false || url_options[:suppress_link]
-    @presenter.item_presenter_for(document).link_to_document(value, url_options)
+    @list_presenter.item_presenter_for(document).link_to_document(value, url_options)
   end
 
   ##
