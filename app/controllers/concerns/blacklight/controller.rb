@@ -87,7 +87,7 @@ module Blacklight::Controller
 
   def search_action_path *args
     if args.first.is_a? Hash
-      args.first[:only_path] = true
+      args.first[:only_path] = true if args.first[:only_path].nil?
     end
 
     search_action_url(*args)
@@ -101,7 +101,7 @@ module Blacklight::Controller
 
   def search_facet_path(options = {})
     Deprecation.silence(Blacklight::Controller) do
-      search_facet_url(options.merge(only_path: true))
+      search_facet_url(options.reverse_merge(only_path: true))
     end
   end
 
