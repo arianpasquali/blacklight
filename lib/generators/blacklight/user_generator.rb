@@ -19,7 +19,7 @@ module Blacklight
     def generate_devise_assets
       return unless options[:devise]
 
-      gem "devise"
+      gem 'devise', git: 'https://github.com/gogovan/devise.git', branch: 'rails-5.1'
       gem "devise-guests", "~> 0.5"
 
       Bundler.with_clean_env do
